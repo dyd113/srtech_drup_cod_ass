@@ -1,0 +1,4 @@
+tile:
+  version: 1.x
+  css:
+    css/tile-block-theme.css: {}
