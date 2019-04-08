@@ -42,8 +42,10 @@ if(!empty($_POST)){
 
     <div class="steps step_4 center_div">
         <form action="index.php" id="inputSubForm" method="POST">
-            <input type="hidden"  id="inputDataN" name="inputDataN" value="">
-            <input type="hidden" id="inputDataQ" name="inputDataQ" value="">
+            <input type="hidden"  id="inputDataS1" name="inputDataS1" value="">
+            <input type="hidden"  id="inputDataS2" name="inputDataS2" value="">
+            <input type="hidden"  id="inputDataC" name="inputDataC" value="">
+            <input type="hidden"  id="inputDataI" name="inputDataI" value="">
         </form>
     </div>
 </div>

@@ -46,9 +46,9 @@ $(document).ready(function(){
               .map(function(){return $(this).val();}).get();
         var values_s2 = $("input[name='val_s2[]']")
         .map(function(){return $(this).val();}).get();
-        var values_c = $("input[name='val_s2[]']")
+        var values_c = $("input[name='val_c[]']")
         .map(function(){return $(this).val();}).get();
-        var values_i = $("input[name='val_s2[]']")
+        var values_i = $("input[name='val_i[]']")
         .map(function(){return $(this).val();}).get();
         values_s1 = JSON.stringify(values_s1);
         values_s2 = JSON.stringify(values_s2);
