@@ -13,11 +13,18 @@ class DataProcess{
     }
 
     function start() {
-      $this->tempOut = [2,2,4,2];
+      $this->tempOut = [];
       for($i=0;$i<count($this->inputDataQ);$i++){
+        $str_q_str = str_replace("?","",$this->inputDataQ[$i]);
+        $str_q_str_ctn = 0;
         for($j=0;$j<count($this->inputDataN);$j++){
             // here porcess is and push to temp out
+            $str_pos = strpos($this->inputDataN[$j], $str_q_str);
+            if($str_pos || $str_pos === 0){
+              $str_q_str_ctn = $str_q_str_ctn + 1;
+            }
         }
+        $this->tempOut[$i] = $str_q_str_ctn;
       }
 
       echo "<div class='center_div'> <h3>SAMPLE OUT IS :</h3> <br />";
