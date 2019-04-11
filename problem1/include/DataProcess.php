@@ -1,35 +1,64 @@
 <?php
 
-class DataProcess{
+/**
+ * {@inheritdoc}
+ */
+class DataProcess
+{
+
+    /**
+     * @var
+     */
     private $inputDataN;
+
     private $inputDataQ;
+
     private $tempOut;
 
-    function __construct() {
+
+    /**
+     * inheritdoc{@}
+     * __construct
+     */
+    function __construct()
+    {
         $this->inputDataN = isset($_POST['inputDataN']) ? json_decode($_POST['inputDataN']) : [];
         $this->inputDataQ = isset($_POST['inputDataQ']) ? json_decode($_POST['inputDataQ']) : [];
+        $this->tempOut    = [];
+
+    }//end __construct()
+
+
+    /**
+     * {@inheritdoc}
+     */
+    function start()
+    {
         $this->tempOut = [];
-    }
-
-    function start() {
-      $this->tempOut = [];
-      for($i=0;$i<count($this->inputDataQ);$i++){
-        $str_q_str = str_replace("?","",$this->inputDataQ[$i]);
-        $str_q_str_ctn = 0;
-        for($j=0;$j<count($this->inputDataN);$j++){
-            $str_pos = strpos($this->inputDataN[$j], $str_q_str);
-            if($str_pos || $str_pos === 0){
-              $str_q_str_ctn = $str_q_str_ctn + 1;
+        $ctnInp        = count($this->inputDataQ);
+        for ($i = 0; $i < $ctnInp; $i++) {
+            $strQstr    = str_replace('?', '', $this->inputDataQ[$i]);
+            $strQstrCtn = 0;
+            $ctnInpN    = count($this->inputDataN);
+            for ($j = 0; $j < $strQstrCtn; $j++) {
+                $strPos = strpos($this->inputDataN[$j], $strQstr);
+                if ($strPos || $strPos === 0) {
+                    $strQstrCtn = $strQstrCtn++;
+                }
             }
+
+            $this->tempOut[$i] = $strQstrCtn;
         }
-        $this->tempOut[$i] = $str_q_str_ctn;
-      }
 
-      echo "<div class='center_div'> <h3>SAMPLE OUT IS :</h3> <br />";
-      for($k=0;$k<count($this->tempOut);$k++){
-        echo $this->tempOut[$k].'<br />';
-      }
-      echo '</div>';
+        $ctnTemp = count($this->tempOut);
+        echo "<div class='center_div'> <h3>SAMPLE OUT IS :</h3> <br />";
+        for ($k = 0; $k < $ctnTemp; $k++) {
+            echo $this->tempOut[$k].'<br />';
+        }
 
-    }
-}
+        echo '</div>';
+
+    }//end start()
+
+
+}//end class
