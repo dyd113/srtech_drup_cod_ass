@@ -2,10 +2,8 @@
 
 namespace Drupal\tile\Plugin\Condition;
 
-use Drupal;
 use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\node\Entity\Node;
 
 /**
  *

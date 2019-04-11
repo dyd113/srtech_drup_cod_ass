@@ -4,7 +4,6 @@ namespace Drupal\tile\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Block\BlockPluginInterface;
-use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\file\Entity\File;
 
@@ -29,7 +28,7 @@ class TileBlock extends BlockBase implements BlockPluginInterface {
       $title = $config['tile_block_title'];
       $descp = $config['tile_block_description'];
       $image = $config['tile_block_image'];
-      $file = \Drupal\file\Entity\File::load($image[0]);
+      $file = File::load($image[0]);
       $path = $file->getFileUri();
       $image_path = file_create_url($path);
       return [
@@ -93,13 +92,6 @@ class TileBlock extends BlockBase implements BlockPluginInterface {
     $this->configuration['tile_block_title'] = $values['tile_block_title'];
     $this->configuration['tile_block_description'] = $values['tile_block_description'];
     $this->configuration['tile_block_image'] = $values['tile_block_image'];
-  }
-
-  /**
-     * {@inheritdoc}
-     */
-    public function getCacheMaxAge() {
-      return 0;
   }
 
 }
