@@ -5,7 +5,6 @@ class DataProcess{
     private $inputDataS2;
     private $inputDataC;
     private $inputDataI;
-    private $outputData;
     private $tempOut;
 
     function __construct() {
@@ -19,7 +18,6 @@ class DataProcess{
     function start() {
       $this->tempOut = [];
       for($i=0;$i<count($this->inputDataS1);$i++){
-        // here code processing and loginc build here
           $s1 = $this->inputDataS1[$i];
           $s2 = $this->inputDataS2[$i];
           $c = $this->inputDataC[$i];

@@ -3,7 +3,6 @@
 class DataProcess{
     private $inputDataN;
     private $inputDataQ;
-    private $outputData;
     private $tempOut;
 
     function __construct() {
@@ -18,7 +17,6 @@ class DataProcess{
         $str_q_str = str_replace("?","",$this->inputDataQ[$i]);
         $str_q_str_ctn = 0;
         for($j=0;$j<count($this->inputDataN);$j++){
-            // here porcess is and push to temp out
             $str_pos = strpos($this->inputDataN[$j], $str_q_str);
             if($str_pos || $str_pos === 0){
               $str_q_str_ctn = $str_q_str_ctn + 1;
