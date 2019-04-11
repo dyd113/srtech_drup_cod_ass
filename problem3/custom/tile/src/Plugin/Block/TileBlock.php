@@ -5,9 +5,14 @@ namespace Drupal\tile\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\file\Entity\File;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-
+/**
+ * @file
+ * Code for the module.
+ */
 
 /**
  * Provides a 'tile' block.
@@ -18,69 +23,96 @@ use Drupal\file\Entity\File;
  *   category = @Translation("Custom tile block")
  * )
  */
-class TileBlock extends BlockBase implements BlockPluginInterface {
+class TileBlock extends BlockBase implements BlockPluginInterface, ContainerFactoryPluginInterface {
+
+  /**
+   * The storage handler class for files.
+   *
+   * @var \Drupal\file\FileStorage
+   */
+  protected $fileStorage;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager);
+    $this->fileStorage = $entity_type_manager->getStorage('file');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+          $configuration,
+          $plugin_id,
+          $plugin_definition,
+          $container->get('entity_type.manager')
+        );
+  }
 
   /**
    * {@inheritdoc}
    */
   public function build() {
-      $config = $this->getConfiguration();
-      $title = $config['tile_block_title'];
-      $descp = $config['tile_block_description'];
-      $image = $config['tile_block_image'];
-      $file = File::load($image[0]);
-      $path = $file->getFileUri();
-      $image_path = file_create_url($path);
-      return [
-        '#theme' => 'tile_template',
-        '#attached' => [
-          'library' => [
-            'tile/tile',
-          ]
+    $config = $this->getConfiguration();
+    $title = $config['tile_block_title'];
+    $descp = $config['tile_block_description'];
+    $image = $config['tile_block_image'];
+    $file = $this->fileStorage->load($image[0]);
+    $path = $file->getFileUri();
+    $image_path = file_create_url($path);
+    return [
+      '#theme' => 'tile_template',
+      '#attached' => [
+        'library' => [
+          'tile/tile',
         ],
-        '#title' => $title,
-        '#descp' => $descp,
-        '#image' => $image_path,
-      ];
+      ],
+      '#title' => $title,
+      '#descp' => $descp,
+      '#image' => $image_path,
+    ];
   }
 
-     /**
+  /**
    * {@inheritdoc}
    */
   public function blockForm($form, FormStateInterface $form_state) {
-      $form = parent::blockForm($form, $form_state);
+    $form = parent::blockForm($form, $form_state);
 
-      $config = $this->getConfiguration();
+    $config = $this->getConfiguration();
 
-      $form['tile_block_title'] = array(
-        '#type' => 'textfield',
-        '#title' => $this->t('Tile Title'),
-        '#description' => $this->t('Tile Title here'),
-        '#default_value' => isset($config['tile_block_title']) ? $config['tile_block_title'] : '',
-        '#required' => true,
-      );
+    $form['tile_block_title'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Tile Title'),
+      '#description' => $this->t('Tile Title here'),
+      '#default_value' => isset($config['tile_block_title']) ? $config['tile_block_title'] : '',
+      '#required' => TRUE,
+    ];
 
-      $form['tile_block_description'] = array(
-        '#type' => 'textarea',
-        '#title' => $this->t('Tile Description'),
-        '#description' => $this->t('Tile Description here'),
-        '#default_value' => isset($config['tile_block_description']) ? $config['tile_block_description'] : '',
-        '#required' => true,
-      );
+    $form['tile_block_description'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Tile Description'),
+      '#description' => $this->t('Tile Description here'),
+      '#default_value' => isset($config['tile_block_description']) ? $config['tile_block_description'] : '',
+      '#required' => TRUE,
+    ];
 
-        $form['tile_block_image'] = array(
-          '#type' => 'managed_file',
-          '#upload_location' => 'public://upload/tile_block',
-          '#title' => t('Tile Image'),
-          '#upload_validators' => [
-              'file_validate_extensions' => ['jpg', 'jpeg', 'png', 'gif']
-          ],
-          '#default_value' => isset($config['tile_block_image']) ? $config['tile_block_image'] : '',
-          '#description' => t('The Tile image to display'),
-          '#required' => true,
-      );
+    $form['tile_block_image'] = [
+      '#type' => 'managed_file',
+      '#upload_location' => 'public://upload/tile_block',
+      '#title' => $this->t('Tile Image'),
+      '#upload_validators' => [
+        'file_validate_extensions' => ['jpg', 'jpeg', 'png', 'gif'],
+      ],
+      '#default_value' => isset($config['tile_block_image']) ? $config['tile_block_image'] : '',
+      '#description' => $this->t('The Tile image to display'),
+      '#required' => TRUE,
+    ];
 
-      return $form;
+    return $form;
   }
 
   /**

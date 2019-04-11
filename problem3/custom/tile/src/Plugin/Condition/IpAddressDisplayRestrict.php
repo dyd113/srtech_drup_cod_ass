@@ -4,6 +4,13 @@ namespace Drupal\tile\Plugin\Condition;
 
 use Drupal\Core\Condition\ConditionPluginBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+/**
+ * {@inheritdoc}
+ */
 
 /**
  *
@@ -12,34 +19,31 @@ use Drupal\Core\Form\FormStateInterface;
  *   label = @Translation("Ip Address Display / Restrict")
  * )
  */
-class IpAddressDisplayRestrict extends ConditionPluginBase {
+class IpAddressDisplayRestrict extends ConditionPluginBase implements ContainerFactoryPluginInterface {
 
   /**
-   * Creates a new IpAddressDisplayRestrict instance.
-   *
-   * @param array $configuration
-   *   The plugin configuration, i.e. an array with configuration values keyed
-   *   by configuration option name. The special key 'context' may be used to
-   *   initialize the defined contexts by setting it to an array of context
-   *   values keyed by context names.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
+   * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
+  protected $requestStack;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, RequestStack $request_stack) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $request_stack);
+    $this->requestStack = $request_stack;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition
-    );
+          $configuration,
+          $plugin_id,
+          $plugin_definition,
+          $container->get('request_stack')
+        );
   }
 
   /**
@@ -47,14 +51,12 @@ class IpAddressDisplayRestrict extends ConditionPluginBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
-   
     $form['tile_iadr'] = [
       '#title' => $this->t('Ip Address Display / Restrict'),
       '#description' => $this->t('Ip Address Display / Restrict'),
       '#type' => 'textarea',
       '#default_value' => $this->configuration['tile_iadr'],
     ];
-
     return $form;
   }
 
@@ -62,7 +64,7 @@ class IpAddressDisplayRestrict extends ConditionPluginBase {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['tile_iadr'] = array_filter($form_state->getValue('tile_iadr'));
+    $this->configuration['tile_iadr'] = $form_state->getValue('tile_iadr');
     parent::submitConfigurationForm($form, $form_state);
   }
 
@@ -77,19 +79,17 @@ class IpAddressDisplayRestrict extends ConditionPluginBase {
    * {@inheritdoc}
    */
   public function evaluate() {
-    $request = \Drupal::request()->getClientIp();
+    $requestIp = $this->requestStack->getCurrentRequest()->getClientIp();
     if (empty($this->configuration['tile_iadr']) && !$this->isNegated()) {
       return TRUE;
     }
-
-    if (!empty($this->configuration['tile_iadr'])){
+    if (!empty($this->configuration['tile_iadr'])) {
       $ip_list = preg_split('/\r\n|[\r\n]/', $this->configuration['tile_iadr']);
-      $ip_check = array_search($request, $ip_list);
-      if(($this->isNegated() && !$ip_check) || (!$this->isNegated() && $ip_check)){
+      $ip_check = array_search($requestIp, $ip_list);
+      if (($this->isNegated() && !$ip_check) || (!$this->isNegated() && $ip_check)) {
         return TRUE;
       }
     }
-    
     return FALSE;
   }
 
